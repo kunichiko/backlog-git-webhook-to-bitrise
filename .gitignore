@@ -1,0 +1,25 @@
+# AWS SAM
+.aws-sam/
+samconfig.toml
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
