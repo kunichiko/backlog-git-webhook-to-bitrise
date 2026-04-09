@@ -6,7 +6,13 @@ AWS Lambda です。
 Backlog は Bitrise の Webhook フォーマットに直接対応していないため、この
 Lambda が **Backlog → Bitrise の中継**を行います。
 
-Backlog ↓ webhook API Gateway ↓ Lambda ↓ Bitrise webhook
+Backlog
+↓
+webhook API Gateway
+↓
+Lambda
+↓
+Bitrise webhook
 
 ## 特徴
 
