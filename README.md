@@ -76,7 +76,7 @@ AWS アカウントが選択されていることを確認してください。
 このリポジトリをクローンします。
 
     git clone https://github.com/kunichiko/backlog-git-webhook-to-bitrise.git
-    cd backlog-bitrise-webhook
+    cd backlog-git-webhook-to-bitrise
 
 SAM を使ってデプロイします。
 
