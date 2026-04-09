@@ -61,6 +61,10 @@ function parseBacklogPayload(event) {
   throw new Error(`unsupported content-type/body format: ${contentType}`);
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const BITRISE_HOST = "hooks.bitrise.io";
 const BITRISE_PREFIX = "/h/github/";
 const PROXY_RE = /^[0-9a-fA-F-]{36}\/[A-Za-z0-9_\-]{10,200}$/;
@@ -130,6 +134,12 @@ export const handler = async (event) => {
   console.log("[BACKLOG] ref:", backlogPayload?.ref);
   console.log("[BACKLOG] repo:", backlogPayload?.repository?.name, backlogPayload?.repository?.url);
   console.log("[BACKLOG] revisions:", Array.isArray(backlogPayload?.revisions) ? backlogPayload.revisions.length : 0);
+
+  const delaySec = Number(process.env.DELAY_SECONDS || "0");
+  if (delaySec > 0) {
+    console.log(`[DELAY] waiting ${delaySec}s before forwarding to Bitrise...`);
+    await sleep(delaySec * 1000);
+  }
 
   const githubLike = toGithubLikePush(backlogPayload);
   const bodyStr = JSON.stringify(githubLike);

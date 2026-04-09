@@ -7,18 +7,25 @@ Resources:
   BacklogWebhookFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: backlog-git-webhook-to-bitrise
+      FunctionName: backlog-to-bitrise-proxy
+      Description: Backlog Git Webhook を受けて Bitrise ビルドをトリガーする中継プロキシ
       Runtime: nodejs24.x
       Handler: index.handler
       CodeUri: .
-      Timeout: 10
+      Timeout: 30
       MemorySize: 128
       Environment:
         Variables:
           SECRET: CHANGE_ME
+          DELAY_SECONDS: 5
       Events:
         WebhookApi:
           Type: HttpApi
           Properties:
-            Path: /backlog-git-webhook-to-bitrise/{secret}/{proxy+}
+            Path: /backlog-to-bitrise-proxy/{secret}/{proxy+}
             Method: POST
+
+Outputs:
+  WebhookUrl:
+    Description: "Webhook URL - replace {secret}, {project_slug}, and {token} with your values"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/backlog-to-bitrise-proxy/{secret}/{project_slug}/{token}"

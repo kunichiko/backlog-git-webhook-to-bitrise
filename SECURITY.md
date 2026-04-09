@@ -9,7 +9,7 @@ API URL には secret が含まれています。
 
 例:
 
-https://xxxxx.execute-api.ap-northeast-1.amazonaws.com/default/backlog-git-webhook-to-bitrise/{secret}/{proxy}
+https://xxxxx.execute-api.ap-northeast-1.amazonaws.com/default/backlog-to-bitrise-proxy/{secret}/{proxy}
 
 secret には推測されにくい十分に長いランダム文字列を設定してください。
 
