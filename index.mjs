@@ -82,7 +82,7 @@ function toGithubLikePush(backlog) {
     author: { name: r?.author?.name, email: r?.author?.email },
     committer: { name: r?.author?.name, email: r?.author?.email },
   }));
-  const headCommit = commits.length ? commits[commits.length - 1] : null;
+  const headCommit = commits.find((c) => c.id === backlog?.after) ?? commits[0] ?? null;
 
   return {
     ref: backlog?.ref,
@@ -131,9 +131,15 @@ export const handler = async (event) => {
     return { statusCode: 400, body: `invalid payload: ${String(e)}` };
   }
 
-  console.log("[BACKLOG] ref:", backlogPayload?.ref);
+  const ref = backlogPayload?.ref ?? "";
+  console.log("[BACKLOG] ref:", ref);
   console.log("[BACKLOG] repo:", backlogPayload?.repository?.name, backlogPayload?.repository?.url);
   console.log("[BACKLOG] revisions:", Array.isArray(backlogPayload?.revisions) ? backlogPayload.revisions.length : 0);
+
+  if (!ref.startsWith("refs/heads/")) {
+    console.log("[SKIP] not a branch push, ignoring:", ref);
+    return { statusCode: 200, body: "skipped: not a branch push" };
+  }
 
   const delaySec = Number(process.env.DELAY_SECONDS || "0");
   if (delaySec > 0) {

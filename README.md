@@ -24,6 +24,7 @@ Bitrise webhook
 -   AWS SAM テンプレート付き
 -   **1つのデプロイで複数の Backlog アカウント・プロジェクトに対応可能**
 -   **複数の Bitrise プロジェクトにも対応可能**
+-   ブランチへの push のみ中継（タグ push は無視）
 -   MIT License
 
 Webhook URL にはリクエストごとに Bitrise の hook パスを含めるため、
