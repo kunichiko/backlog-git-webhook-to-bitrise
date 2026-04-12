@@ -97,13 +97,13 @@ SAM を使ってデプロイします。
 | SAM configuration file | `samconfig.toml`（デフォルト） | そのまま Enter |
 | SAM configuration environment | `default`（デフォルト） | そのまま Enter |
 
-デプロイ完了後、SECRET の値を設定します。コマンドラインで `uuidgen` などを実行して UUID を生成し、それを使うのがおすすめです。
+デプロイ完了後、URL_RANDOM の値を設定します。コマンドラインで `uuidgen` などを実行して UUID を生成し、それを使うのがおすすめです。
 
     aws lambda update-function-configuration \
       --function-name backlog-to-bitrise-proxy \
-      --environment "Variables={SECRET=ここにUUIDを入れる,DELAY_SECONDS=5}"
+      --environment "Variables={URL_RANDOM=ここにUUIDを入れる,DELAY_SECONDS=5}"
 
-この SECRET の値は後で Webhook URL に使うのでメモしておいてください。
+この URL_RANDOM の値は後で Webhook URL に使うのでメモしておいてください。
 
 ## アップデート方法
 
@@ -164,14 +164,14 @@ Bitrise のプロジェクト設定 → Code → Incoming Webhooks で
 
 | 変数名 | 必須 | デフォルト | 説明 |
 |---|---|---|---|
-| `SECRET` | はい | — | Webhook 認証用トークン。推測されにくい長いランダム文字列を設定してください |
+| `URL_RANDOM` | はい | — | Webhook URL を推測されにくくするためのランダム文字列を設定してください |
 | `DELAY_SECONDS` | いいえ | `5` | Bitrise へ転送する前の待機秒数。Backlog の Git 同期が間に合わない場合に調整してください。`0` で即時転送。Lambda の Timeout（デフォルト 30秒）より小さい値にしてください。Timeout を超えると Lambda ごとタイムアウトします |
 
 ## 動作確認
 
-### 1. SECRET の検証が動いているか確認する
+### 1. URL_RANDOM の検証が動いているか確認する
 
-わざと間違った SECRET で叩いて、403 が返ることを確認します。
+わざと間違った URL_RANDOM で叩いて、403 が返ることを確認します。
 
     curl -i -X POST \
       -H "content-type: application/json" \
@@ -182,7 +182,7 @@ Bitrise のプロジェクト設定 → Code → Incoming Webhooks で
 
 ### 2. Lambda が正常に動作するか確認する
 
-正しい SECRET で空の JSON を送り、200 が返ることを確認します。
+正しい URL_RANDOM で空の JSON を送り、200 が返ることを確認します。
 
     curl -i -X POST \
       -H "content-type: application/json" \

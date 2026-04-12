@@ -105,14 +105,14 @@ export const handler = async (event) => {
   // ★リクエスト全体をログ（bodyは切り詰め）
   dumpEvent(event);
 
-  const EXPECTED_SECRET = process.env.SECRET;
+  const EXPECTED_SECRET = process.env.URL_RANDOM;
 
   const secret = event?.pathParameters?.secret;
   const proxy = event?.pathParameters?.proxy;
 
   if (!EXPECTED_SECRET) {
-    console.log("[ERR] SECRET env is not set");
-    return { statusCode: 500, body: "SECRET env is not set" };
+    console.log("[ERR] URL_RANDOM env is not set");
+    return { statusCode: 500, body: "URL_RANDOM env is not set" };
   }
   if (!secret || secret !== EXPECTED_SECRET) {
     console.log("[DENY] secret mismatch");
