@@ -65,6 +65,15 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const ZERO_SHA = /^0+$/;
+
+// Backlog はブランチを削除すると、after が 0000… でコミットのない push を送ってくる
+export function isBranchDeletion(backlog) {
+  const after = backlog?.after ?? "";
+  const revisions = Array.isArray(backlog?.revisions) ? backlog.revisions : [];
+  return ZERO_SHA.test(after) || (after === "" && revisions.length === 0);
+}
+
 const BITRISE_HOST = "hooks.bitrise.io";
 const BITRISE_PREFIX = "/h/github/";
 const PROXY_RE = /^[0-9a-fA-F-]{36}\/[A-Za-z0-9_\-]{10,200}$/;
@@ -141,6 +150,13 @@ export const handler = async (event) => {
     return { statusCode: 200, body: "skipped: not a branch push" };
   }
 
+  // ブランチの削除（PR のマージ後の自動削除など）はコミットがなく、Bitrise は
+  // "missing commit hash" の 400 を返す。中継せずに 200 で終える。
+  if (isBranchDeletion(backlogPayload)) {
+    console.log("[SKIP] branch deletion, ignoring:", ref);
+    return { statusCode: 200, body: "skipped: branch deletion" };
+  }
+
   const delaySec = Number(process.env.DELAY_SECONDS || "0");
   if (delaySec > 0) {
     console.log(`[DELAY] waiting ${delaySec}s before forwarding to Bitrise...`);
@@ -176,8 +192,15 @@ export const handler = async (event) => {
   console.log("[BITRISE] status:", resp.status);
   console.log("[BITRISE] resp body head:", safeTruncate(text, 2000));
 
-  if (!resp.ok) {
+  // Backlog はエラーを返すと約 1 分おきに 5 回やり直し、その間スペースの他の Webhook を送らない。
+  // 4xx はやり直しても結果が変わらないので 200 で返し、後ろの Webhook を待たせない。
+  // 5xx と通信の失敗だけをエラーにして、Backlog にやり直してもらう。
+  if (resp.status >= 500) {
     return { statusCode: 502, body: `bitrise hook error: ${resp.status} ${text}` };
+  }
+  if (!resp.ok) {
+    console.log("[WARN] bitrise rejected the webhook; not asking Backlog to retry:", resp.status);
+    return { statusCode: 200, body: `bitrise rejected: ${resp.status}` };
   }
 
   return { statusCode: 200, body: "ok" };
